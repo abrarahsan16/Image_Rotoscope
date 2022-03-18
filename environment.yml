@@ -1,0 +1,10 @@
+name: ele882-final-project
+channels:
+    - default
+    - conda-forge
+dependencies:
+    - python=3.8
+    - pip
+    - scikit-image=0.17
+    - pip:
+        - flake8
