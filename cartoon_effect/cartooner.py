@@ -24,19 +24,20 @@ def stylization(img, imgGrey, sigmaBlur, sigmaDog, p, N):
         L[mask] = i
     # Allocate image S with same size as imgBlur
     S = np.zeros(img.shape)
-    C = np.zeros(img.shape, dtype = int)
+    #C = np.zeros(img.shape, dtype = int)
+    C = np.copy(imgBlur)
     # If original image is RGB or Grey
     if img.ndim == 3:
-        L = label(L)
+        Lab = label(L)
         for i in range(255):
-            Li = L == i
+            Li = Lab == i
             Li_Connected = np.stack((Li, Li, Li), axis = 2)
-            mean_Colour = np.mean(img, where = Li_Connected)
+            mean_Colour = np.mean(imgBlur, where = Li)
             C[Li] = mean_Colour
-        XDog = np.ones((img.shape[0], img.shape[1], img.shape[2]))
-        XDog[:, :, 0] = XDoG(img, sigmaDog, p)
-        XDog[:, :, 1] = XDog[:, :, 0]
-        XDog[:, :, 2] = XDog[:, :, 0]
+        XDog = np.ones((img.shape[0], img.shape[1]))
+        XDog = XDoG(img, sigmaDog, p)
+        #XDog[:, :, 1] = XDog[:, :, 0]
+        #XDog[:, :, 2] = XDog[:, :, 0]
         return C * XDog
     else:
         C = C/N
@@ -140,16 +141,13 @@ def XDoG(img, sigma, p):
     imgGaus = gaussianBlur(imgGrey, sigma)
     DoG = imgGaus - gaussianBlur(imgGrey, 1.6*sigma)
     U = imgGrey + p*DoG
-    T = np.ones((img.shape[0], img.shape[1]))
-    #mask = np.where(U>0.5, 1, 0)
-    #if (U>5):
-    #    T = 1
-    #else:
-    #    T = 0
-    IXDoG = T*U
-    #IXDoG = mask
+    #T = np.ones((img.shape[0], img.shape[1]))
+    mask = np.where(U>0.5, 1, 0)
+    
+    #IXDoG = T*U
+    IXDoG = mask
 
-    return LineCleanup(IXDoG)
+    return LineCleanup(IXDoG.astype(np.float64))
     raise NotImplementedError('Implement this function/method.')
 
 def LineCleanup(img):

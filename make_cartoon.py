@@ -4,7 +4,7 @@ import argparse
 from skimage.io import imread, imsave
 from skimage.color import rgb2gray
 from cartoon_effect.cartooner import stylization
-from scipy.ndimage import histogram
+
 '''Project Submission
 Abrar Ahsan, Mahnoor Hussain
 500722182, 500837367
@@ -27,20 +27,24 @@ def cartoonizer(img):
     else:
         imgGrey = img
     #, img, imgGrey, sigmaBlur, row, N)
-    imgStyle = stylization(img, imgGrey, 7, 2.28, 3, 3)
-    #imgOutput = imgStyle*img
-    #imgOutput = (imgOutput/imgOutput.max())*255
-
-    #imgOutput = (imgOutput/imgOutput.max())*255
-
-    return (imgStyle)
+    imgStyle = stylization(img, imgGrey, 9, 5, 8, 8)
+    #imgStyle = imgStyle*255
+    imgStyle = (imgStyle/imgStyle.max())*255
+    imgS = np.zeros(img.shape)
+    imgS[:, :, 0] = imgStyle
+    imgS[:, :, 1] = imgStyle
+    imgS[:, :, 2] = imgStyle
+    imgOutput = imgS+img
+    imgOutput = (imgOutput/imgOutput.max())*255
+        
+    return (imgOutput.astype(np.uint8))
 
 if __name__ == '__main__':
     #if (len(sys.argv)<2):
     #    raise Exception("Invalid number of arguments")
     #else:
     #    print('This need to be implemented!')
-    img = imread("E:\Github\Image_Rotoscope\samples\\building.jpg", as_gray = False)
+    img = imread("E:\Github\Image_Rotoscope\samples\\stairs.jpg", as_gray = False)
     outputImg = cartoonizer(img)
     imsave("E:\Github\Image_Rotoscope\Output Folder\output.jpg", (outputImg))
 
