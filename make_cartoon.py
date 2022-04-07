@@ -1,3 +1,4 @@
+from urllib.request import parse_keqv_list
 import numpy as np
 import sys
 import argparse
@@ -19,7 +20,7 @@ outputPath : str
 More inputs will be needed here.
 '''
 
-def cartoonizer(img):
+def cartoonizer(img, sigmaBlur, sigmaDoG, p, epsilon, N):
     if img.ndim != 3 and img.ndim !=2:
         raise ValueError("Image needs to be RGB or greyscale")
     elif img.ndim == 3:
@@ -27,7 +28,7 @@ def cartoonizer(img):
     else:
         imgGrey = img
     #, img, imgGrey, sigmaBlur, row, N)
-    imgStyle = stylization(img, imgGrey, 12, 5, 8, 5)
+    imgStyle = stylization(img, imgGrey, sigmaBlur, sigmaDoG, p, epsilon, N)
     #imgStyle = imgStyle*255
     imgStyle = (imgStyle/imgStyle.max())*255
     if img.ndim == 3:
@@ -50,8 +51,14 @@ if __name__ == '__main__':
     #    raise Exception("Invalid number of arguments")
     #else:
     #    print('This need to be implemented!')
-    img = imread("E:\Github\Image_Rotoscope\samples\\building.jpg", as_gray = False)
-    outputImg = cartoonizer(img)
-    imsave("E:\Github\Image_Rotoscope\Output Folder\output.jpg", (outputImg))
+    building = imread("E:\Github\Image_Rotoscope\samples\\building.jpg", as_gray = False)
+    park = imread("E:\Github\Image_Rotoscope\samples\\park.jpg", as_gray = False)
+    stairs = imread("E:\Github\Image_Rotoscope\samples\\stairs.jpg", as_gray = False)
+    buildingImg = cartoonizer(building, 12, 5, 8, 0.5, 5)
+    parkImg = cartoonizer(park, 5, 5, 9, 0.5, 5)
+    stairsImg = cartoonizer(stairs, 12, 5, 8, 0.5, 5)
+    imsave("E:\Github\Image_Rotoscope\Output Folder\\buildingImg.jpg", (buildingImg))
+    imsave("E:\Github\Image_Rotoscope\Output Folder\\parkImg.jpg", (parkImg))
+    imsave("E:\Github\Image_Rotoscope\Output Folder\\stairsImg.jpg", (stairsImg))
 
     print("New image have been saved in the output folder!")

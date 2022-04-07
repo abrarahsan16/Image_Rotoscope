@@ -4,7 +4,7 @@ import math
 from skimage.color import rgb2grey
 from skimage.morphology import label
 
-def stylization(img, imgGrey, sigmaBlur, sigmaDog, p, N):
+def stylization(img, imgGrey, sigmaBlur, sigmaDog, p, epsilon, N):
     imgNew = imgGrey
     # Apply gaussian blur on the image
     imgBlur = gaussianBlur(imgNew, sigmaBlur)
@@ -18,9 +18,9 @@ def stylization(img, imgGrey, sigmaBlur, sigmaDog, p, N):
     # fill in L
     for i in range(N):
         if i == N-1:
-            mask = np.logical_and(imgBlur >= bins[i], imgBlur < bins[i+1])
-        else:
             mask = imgBlur >= bins[i]
+        else:
+            mask = np.logical_and(imgBlur >= bins[i], imgBlur < bins[i+1])
         L[mask] = i
     # Allocate image S with same size as imgBlur
     S = np.zeros(img.shape)
@@ -35,14 +35,14 @@ def stylization(img, imgGrey, sigmaBlur, sigmaDog, p, N):
             mean_Colour = np.mean(imgBlur, where = Li)
             C[Li] = mean_Colour
         XDog = np.ones((img.shape[0], img.shape[1]))
-        XDog = XDoG(img, sigmaDog, p)
+        XDog = XDoG(img, sigmaDog, p, epsilon)
         #XDog[:, :, 1] = XDog[:, :, 0]
         #XDog[:, :, 2] = XDog[:, :, 0]
         return C * XDog
     else:
         C = C/N
         # Return output
-        return C * XDoG(img, sigmaDog, p)
+        return C * XDoG(img, sigmaDog, p, epsilon)
 
 def gaussianBlur(img, sigma):
     '''Filter an image using a Gaussian kernel.
@@ -130,7 +130,7 @@ def convolve(img, kernel):
     return ndimage.convolve(img, kernel, mode='nearest')
 
 
-def XDoG(img, sigma, p):
+def XDoG(img, sigma, p, epsilon):
     # If image is RGB
     if img.ndim == 3:
         imgGrey = rgb2grey(img)
@@ -142,7 +142,7 @@ def XDoG(img, sigma, p):
     DoG = imgGaus - gaussianBlur(imgGrey, 1.6*sigma)
     U = imgGrey + p*DoG
     #T = np.ones((img.shape[0], img.shape[1]))
-    mask = np.where(U>0.5, 1, 0)
+    mask = np.where(U>epsilon, 1, 0)
     
     #IXDoG = T*U
     IXDoG = mask
